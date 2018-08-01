@@ -16,8 +16,13 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.javaee.rodrigoandrades.projeto_final.config.EmailConfig;
 import com.javaee.rodrigoandrades.projeto_final.domain.Acao;
+import com.javaee.rodrigoandrades.projeto_final.domain.Cliente;
 import com.javaee.rodrigoandrades.projeto_final.domain.Empresa;
+import com.javaee.rodrigoandrades.projeto_final.exception.AcaoJaPossuiProprietarioException;
+import com.javaee.rodrigoandrades.projeto_final.services.AcaoService;
+import com.javaee.rodrigoandrades.projeto_final.services.ClienteService;
 import com.javaee.rodrigoandrades.projeto_final.services.EmpresaService;
 
 import io.swagger.annotations.Api;
@@ -29,6 +34,13 @@ import io.swagger.annotations.ApiOperation;
 public class EmpresaController {
 	@Autowired
     private EmpresaService empresaService;
+	
+	@Autowired
+    private AcaoService acaoService;
+	
+	@Autowired
+    private ClienteService clienteService;
+	
 
 	@GetMapping
 	@ApiOperation(value = "Listar todas as empresas")
@@ -76,5 +88,31 @@ public class EmpresaController {
     	empresa.getAcoes().add(new Acao(empresa, valorInicial, valorAtual, new Date(), new Date()));
     	
         return empresaService.save(empresa);
+    }
+    
+    @PostMapping({"/{idEmpresa}/acoes/{idAcao}/vender"})
+    @ApiOperation(value = "Vender uma ação")
+    @ResponseStatus(HttpStatus.OK)
+    public void vender(@PathVariable Long idEmpresa, @PathVariable Long idAcao, @RequestParam Long idCliente, Double valorAtual) throws AcaoJaPossuiProprietarioException{
+    	Acao acao = acaoService.getById(idAcao);
+    	
+    	if(acao.getCliente() != null){
+    		throw new AcaoJaPossuiProprietarioException();
+    	}
+    	
+    	Cliente cliente = clienteService.getById(idCliente);
+    	
+    	acao.setCliente(cliente);
+    	acao.setDataCompra(new Date());
+    	acao.setValorAtual(valorAtual);
+    	
+    	
+    	
+		final String fromEmail = "rodrigomail2007@gmail.com";
+		final String password = "******";
+		final String toEmail = "rodrigomail2007@gmail.com";
+
+		EmailConfig config = new EmailConfig();
+		config.sendEmail(fromEmail, password, toEmail, "Subject", "Email Body");
     }
 }

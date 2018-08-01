@@ -1,4 +1,4 @@
-package com.javaee.rodrigoandrades.mongodb;
+package com.javaee.rodrigoandrades.projeto_final;
 
 import org.junit.Test;
 import org.junit.runner.RunWith;
