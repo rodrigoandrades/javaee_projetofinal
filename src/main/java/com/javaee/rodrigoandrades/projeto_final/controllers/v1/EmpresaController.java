@@ -54,7 +54,7 @@ public class EmpresaController {
     @PutMapping({"/{id}"})
     @ApiOperation(value = "Alterar uma empresa")
     @ResponseStatus(HttpStatus.OK)
-    public Empresa updateGarage(@PathVariable Long id, @RequestBody Empresa empresa){
+    public Empresa update(@PathVariable Long id, @RequestBody Empresa empresa){
     	empresa.setId(id);
     	
     	return empresaService.save(empresa);
@@ -63,7 +63,7 @@ public class EmpresaController {
     @DeleteMapping({"/{id}"})
     @ApiOperation(value = "Remover uma empresa")
     @ResponseStatus(HttpStatus.OK)
-    public void deleteGarage(@PathVariable Long id){
+    public void delete(@PathVariable Long id){
     	empresaService.deleteById(id);
     }
     
