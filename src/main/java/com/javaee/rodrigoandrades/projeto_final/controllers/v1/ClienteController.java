@@ -1,6 +1,5 @@
 package com.javaee.rodrigoandrades.projeto_final.controllers.v1;
 
-import java.util.Date;
 import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -16,12 +15,12 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
 
-import com.javaee.rodrigoandrades.projeto_final.config.EmailConfig;
 import com.javaee.rodrigoandrades.projeto_final.domain.Acao;
 import com.javaee.rodrigoandrades.projeto_final.domain.Cliente;
-import com.javaee.rodrigoandrades.projeto_final.exception.AcaoSemProprietarioException;
+import com.javaee.rodrigoandrades.projeto_final.domain.Venda;
 import com.javaee.rodrigoandrades.projeto_final.services.AcaoService;
 import com.javaee.rodrigoandrades.projeto_final.services.ClienteService;
+import com.javaee.rodrigoandrades.projeto_final.services.VendaService;
 
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
@@ -35,6 +34,9 @@ public class ClienteController {
 
 	@Autowired
     private AcaoService acaoService;
+	
+	@Autowired
+    private VendaService vendaService;
 	
 	@GetMapping
 	@ApiOperation(value = "Listar todos os clientes")
@@ -76,25 +78,15 @@ public class ClienteController {
     @PostMapping({"/{id}/comprarAcao"})
     @ApiOperation(value = "Efetuar compra de ação")
     @ResponseStatus(HttpStatus.OK)
-    public void comprar(@PathVariable Long id, @RequestParam Long idAcao, Double valorAtual) throws AcaoSemProprietarioException{
+    public void comprar(@PathVariable Long id, @RequestParam Long idAcao, Double valorAtual) {
     	Acao acao = acaoService.getById(idAcao);
+    	Cliente comprador = clienteService.getById(id);
+    	    	
+    	Venda venda = new Venda();
+    	venda.setAcao(acao);
+    	venda.setComprador(comprador);
+    	venda.setValor(valorAtual);
     	
-    	if(acao.getCliente() == null){
-    		throw new AcaoSemProprietarioException();
-    	}
-    	
-    	Cliente cliente = clienteService.getById(id);
-    	
-    	acao.setCliente(cliente);
-    	acao.setDataCompra(new Date());
-    	acao.setValorAtual(valorAtual);
-    	
-    	
-		final String fromEmail = "rodrigomail2007@gmail.com";
-		final String password = "******";
-		final String toEmail = "rodrigomail2007@gmail.com";
-
-		EmailConfig config = new EmailConfig();
-		config.sendEmail(fromEmail, password, toEmail, "Subject", "Email Body");
+    	vendaService.solicitaVenda(venda);
     }
 }

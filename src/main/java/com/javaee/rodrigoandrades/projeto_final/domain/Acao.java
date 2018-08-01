@@ -1,5 +1,6 @@
 package com.javaee.rodrigoandrades.projeto_final.domain;
 
+import java.io.Serializable;
 import java.util.Date;
 
 import javax.persistence.Column;
@@ -12,7 +13,9 @@ import javax.persistence.ManyToOne;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 
 @Entity
-public class Acao {
+public class Acao implements Serializable{
+	private static final long serialVersionUID = 1L;
+
 	public Acao() {}
 	
 	public Acao(Empresa empresa, Double valorInicial, Double valorAtual, Date dataCompra, Date dataEmissao) {

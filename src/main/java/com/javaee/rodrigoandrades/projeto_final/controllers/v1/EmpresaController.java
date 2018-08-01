@@ -16,14 +16,16 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
 
-import com.javaee.rodrigoandrades.projeto_final.config.EmailConfig;
 import com.javaee.rodrigoandrades.projeto_final.domain.Acao;
 import com.javaee.rodrigoandrades.projeto_final.domain.Cliente;
 import com.javaee.rodrigoandrades.projeto_final.domain.Empresa;
+import com.javaee.rodrigoandrades.projeto_final.domain.Venda;
 import com.javaee.rodrigoandrades.projeto_final.exception.AcaoJaPossuiProprietarioException;
+import com.javaee.rodrigoandrades.projeto_final.exception.EmpresaAcaoInvalidaException;
 import com.javaee.rodrigoandrades.projeto_final.services.AcaoService;
 import com.javaee.rodrigoandrades.projeto_final.services.ClienteService;
 import com.javaee.rodrigoandrades.projeto_final.services.EmpresaService;
+import com.javaee.rodrigoandrades.projeto_final.services.VendaService;
 
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
@@ -40,6 +42,10 @@ public class EmpresaController {
 	
 	@Autowired
     private ClienteService clienteService;
+
+	@Autowired
+    private VendaService vendaService;
+	
 	
 
 	@GetMapping
@@ -93,26 +99,25 @@ public class EmpresaController {
     @PostMapping({"/{idEmpresa}/acoes/{idAcao}/vender"})
     @ApiOperation(value = "Vender uma ação")
     @ResponseStatus(HttpStatus.OK)
-    public void vender(@PathVariable Long idEmpresa, @PathVariable Long idAcao, @RequestParam Long idCliente, Double valorAtual) throws AcaoJaPossuiProprietarioException{
+    public void vender(@PathVariable Long idEmpresa, @PathVariable Long idAcao, @RequestParam Long idCliente, Double valorAtual) throws AcaoJaPossuiProprietarioException, EmpresaAcaoInvalidaException{
     	Acao acao = acaoService.getById(idAcao);
     	
     	if(acao.getCliente() != null){
     		throw new AcaoJaPossuiProprietarioException();
     	}
     	
-    	Cliente cliente = clienteService.getById(idCliente);
+    	if(acao.getEmpresa().getId() != idEmpresa) {
+    		throw new EmpresaAcaoInvalidaException();
+    	}
     	
-    	acao.setCliente(cliente);
-    	acao.setDataCompra(new Date());
-    	acao.setValorAtual(valorAtual);
+    	Cliente comprador = clienteService.getById(idCliente);
     	
     	
+    	Venda venda = new Venda();
+    	venda.setAcao(acao);
+    	venda.setComprador(comprador);
+    	venda.setValor(valorAtual);
     	
-		final String fromEmail = "rodrigomail2007@gmail.com";
-		final String password = "******";
-		final String toEmail = "rodrigomail2007@gmail.com";
-
-		EmailConfig config = new EmailConfig();
-		config.sendEmail(fromEmail, password, toEmail, "Subject", "Email Body");
+    	vendaService.solicitaVenda(venda);
     }
 }
