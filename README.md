@@ -12,6 +12,7 @@ mvn spring-boot:run
 ### Configurar email
 Alterar dentro da classe com.javaee.rodrigoandrades.projeto_final.listeners.VendaListener método enviarEmail as variáveis:
 final String fromEmail
+<br>
 final String password 
 
 
