@@ -9,7 +9,7 @@ docker run -d --hostname rabbitmq --name rabbitmq-management -p 15672:15672 -p 5
 mvn spring-boot:run
 ```
 
-###Configurar email
+### Configurar email
 Alterar dentro da classe com.javaee.rodrigoandrades.projeto_final.listeners.VendaListener método enviarEmail as variáveis:
 final String fromEmail
 final String password 
